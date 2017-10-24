@@ -70,34 +70,89 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return[s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
+    border = util.Stack()
+    visited = []
+    startNode = (problem.getStartState(), None, [])
+    border.push(startNode)
 
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
+    while not border.isEmpty():
+        curr = border.pop()
+        currLoc = curr[0]
+        currDir = curr[1]
+        currPath = curr[2]
 
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
+        if(currLoc not in visited):
+            visited.append(currLoc)
 
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+            if(problem.isGoalState(currLoc)):
+                return currPath
+
+        successors = problem.getSuccessors(currLoc)
+        successorsList = list(successors)
+
+        for i in successorsList:
+            if i[0] not in visited:
+                border.push((i[0], i[1], currPath + [i[1]]))
+
+    return[]
+
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    border = util.Queue()
+    visited = []
+    startNode = (problem.getStartState(), None, [])
+    border.push(startNode)
+
+    while not border.isEmpty():
+        curr = border.pop()
+        currLoc = curr[0]
+        currDir = curr[1]
+        currPath = curr[2]
+
+        if (currLoc not in visited):
+            visited.append(currLoc)
+
+            if (problem.isGoalState(currLoc)):
+                return currPath
+
+            successors = problem.getSuccessors(currLoc)
+            successorsList = list(successors)
+
+            for i in successorsList:
+                if i[0] not in visited:
+                    border.push((i[0], i[1], currPath + [i[1]]))
+    return []
+
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    border = util.PriorityQueue()
+    visited = []
+    startNode = ((problem.getStartState(), None, 0), [], 0)
+    border.push(startNode, None)
+    while not border.isEmpty():
+        curr = border.pop()
+        currLoc = curr[0][0]
+        currDir = curr[0][1]
+        currPath = curr[1]
+        currCost = curr[2]
+        if currLoc not in visited:
+            visited.append(currLoc)
+            if (problem.isGoalState(currLoc)):
+                return currPath
+            successors = problem.getSuccessors(currLoc)
+            successorsList = list(successors)
+            for i in successorsList:
+                if i[0] not in visited:
+                    if (problem.isGoalState(i[0])):
+                        return currPath + [i[1]]
+                    newNode = (i, currPath + [i[1]], currCost + i[2])
+                    border.push(newNode, currCost + i[2])
+    return []
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -107,9 +162,33 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    border = util.PriorityQueue()
+    visited = []
+    h = heuristic(problem.getStartState(), problem)
+    g = 0
+    f = g + h
+    startingNode = (problem.getStartState(), None, g, []);
+    border.push(startingNode, f)
+    while not border.isEmpty():
+        curr = border.pop()
+        currLoc = curr[0]
+        currDir = curr[1]
+        currCost = curr[2]
+        if currLoc not in visited:
+            currPath = curr[3]
+            visited.append(currLoc)
+            successors = problem.getSuccessors(currLoc)
+            successorsList = list(successors)
+            for i in successorsList:
+                if i[0] not in visited:
+                    if (problem.isGoalState(i[0])):
+                        return currPath + [i[1]]
+                    h = heuristic(i[0], problem)
+                    g = currCost + i[2]
+                    f = g + h
+                    newNode = (i[0], i[1], g, currPath + [i[1]])
+                    border.push(newNode, f)
+    return []
 
 
 # Abbreviations
